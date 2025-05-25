@@ -57,7 +57,52 @@ def bisect(
 
     raise ConvergenceFailure(
         "Failed to converge with given max iteration count and tolerance."
-        + f" Final estimate: root={mid_point}, f(root)={f(mid_point)}."
+        + f" Final estimate: point_n={mid_point}, f(point_n)={f(mid_point)}."
+    )
+
+
+def false_position(
+    f: Callable[[float], float],
+    point_0: float,
+    point_1: float,
+    max_iteration: int = 100,
+    tolerance: float = 1e-5,
+) -> float:
+    """
+    Root finding via the method of false position.
+
+    Parameters
+    ----------
+    f : Callable[[float], float]
+        The function to find the root of.
+    point_0: float
+        Initial estimate of root.
+    point_1: float
+        Second initial estimate of root.
+    tolerance : float
+        The accuracy to which the root is estimated.
+    max_iteration : int
+        Maximum number of iterations.
+
+    Returns
+    -------
+    float
+        The estimated root of the function `f`.
+    """
+    for _ in range(max_iteration):
+        point_n: float = point_1 - (f(point_1) * (point_1 - point_0)) / (
+            f(point_1) - f(point_0)
+        )
+        if abs(point_n - point_1) < tolerance:
+            return point_n
+
+        if f(point_n) * f(point_1) < 0:
+            point_0 = point_1
+        point_1 = point_n
+
+    raise ConvergenceFailure(
+        "Failed to converge with given max iteration count and tolerance."
+        + f" Final estimate: point_n={point_n}, f(point_n)={f(point_n)}."
     )
 
 
@@ -91,6 +136,80 @@ def fixed_point(
         if abs(point_n - point_0) < tolerance:
             return point_n
         point_0 = point_n
+
+    raise ConvergenceFailure(
+        "Failed to converge with given max iteration count and tolerance."
+        + f" Final estimate: point_n={point_n}, f(point_n)={f(point_n)}."
+    )
+
+
+def newton(
+    f: Callable[[float], float],
+    f_prime: Callable[[float], float],
+    point_0: float,
+    max_iteration: int = 100,
+    tolerance: float = 1e-5,
+) -> float:
+    """
+    Root finding via Newton's method.
+
+    Parameters
+    ----------
+    f : Callable[[float], float]
+        The function to find the root of.
+    point_0: float
+        Initial estimate of root.
+    tolerance : float
+        The accuracy to which the root is estimated.
+    max_iteration : int
+        Maximum number of iterations.
+
+    Returns
+    -------
+    float
+        The estimated root of the function `f`.
+    """
+    return fixed_point(
+        lambda p: p - f(p) / f_prime(p), point_0, max_iteration, tolerance
+    )
+
+
+def secant(
+    f: Callable[[float], float],
+    point_0: float,
+    point_1: float,
+    max_iteration: int = 100,
+    tolerance: float = 1e-5,
+) -> float:
+    """
+    Root finding via the secant method.
+
+    Parameters
+    ----------
+    f : Callable[[float], float]
+        The function to find the root of.
+    point_0: float
+        Initial estimate of root.
+    point_1: float
+        Second initial estimate of root.
+    tolerance : float
+        The accuracy to which the root is estimated.
+    max_iteration : int
+        Maximum number of iterations.
+
+    Returns
+    -------
+    float
+        The estimated root of the function `f`.
+    """
+    for _ in range(max_iteration):
+        point_n: float = point_1 - (f(point_1) * (point_1 - point_0)) / (
+            f(point_1) - f(point_0)
+        )
+        if abs(point_n - point_1) < tolerance:
+            return point_n
+        point_0 = point_1
+        point_1 = point_n
 
     raise ConvergenceFailure(
         "Failed to converge with given max iteration count and tolerance."
