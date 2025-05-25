@@ -11,8 +11,8 @@ def bisect(
     f: Callable[[float], float],
     left_endpoint: float,
     right_endpoint: float,
-    tolerance: float = 1e-5,
     max_iteration: int = 100,
+    tolerance: float = 1e-5,
 ) -> float:
     """
     Root finding via the bisection method.
@@ -25,15 +25,15 @@ def bisect(
         The left endpoint of the interval to search in.
     right_endpoint : float
         The right endpoint of the interval to search in.
-    tolerance : float
-        The accuracy to which the root is estimated.
     max_iteration : int
         Maximum number of iterations.
+    tolerance : float
+        The accuracy to which the root is estimated.
 
     Returns
     -------
     root : float
-        The estimated root of the function f
+        The estimated root of the function `f`.
     """
     if right_endpoint <= left_endpoint:
         raise ValueError(
@@ -56,6 +56,43 @@ def bisect(
             right_endpoint = mid_point
 
     raise ConvergenceFailure(
-        "Failed to converge with given tolerance and max iteration count."
+        "Failed to converge with given max iteration count and tolerance."
         + f" Final estimate: root={mid_point}, f(root)={f(mid_point)}."
+    )
+
+
+def fixed_point(
+    f: Callable[[float], float],
+    point_0: float,
+    max_iteration: int = 100,
+    tolerance: float = 1e-5,
+) -> float:
+    """
+    Root finding via fixed-point iteration.
+
+    Parameters
+    ----------
+    f : Callable[[float], float]
+        The function to find the fixed-point of.
+    point_0: float
+        Initial estimate of fixed point.
+    tolerance : float
+        The accuracy to which the fixed-point is estimated.
+    max_iteration : int
+        Maximum number of iterations.
+
+    Returns
+    -------
+    point_n : float
+        The estimated fixed-point of the function `f`.
+    """
+    for _ in range(max_iteration):
+        point_n: float = f(point_0)
+        if abs(point_n - point_0) < tolerance:
+            return point_n
+        point_0 = point_n
+
+    raise ConvergenceFailure(
+        "Failed to converge with given max iteration count and tolerance."
+        + f" Final estimate: point_n={point_n}, f(point_n)={f(point_n)}."
     )

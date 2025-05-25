@@ -1,4 +1,4 @@
-""" 
+"""
 Exceptions utilized throughout `napy`.
 """
 
